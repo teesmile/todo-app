@@ -2,6 +2,7 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
+import Home from "./pages/Home";
 
 
 function App() {
@@ -9,7 +10,8 @@ function App() {
 
   return (
     <>
-      <h1 class="text-3xl font-bold underline">What's your To do today?</h1>
+      <h1 class="text-s font-bold underline">What's your To do today?</h1>
+      <Home />
     </>
   );
 }

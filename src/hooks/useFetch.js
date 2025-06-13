@@ -18,6 +18,7 @@ const useFetch = (url) => {
         }
         const todoData = await response.json();
         setData(todoData); // We save the data
+        console.log(todoData)
       } catch (err) {
         console.error('Fetch error:', err);
         setError(err); 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet } from '@tanstack/react-router';
+import { Outlet , createRootRoute} from '@tanstack/react-router';
 import Navbar from '../components/Navbar';
 
 const Root = () => {
@@ -15,3 +15,11 @@ const Root = () => {
 };
 
 export default Root;
+// export const Route = createRootRoute({
+//   component: () => (
+//     <div className="app">
+//       <Navbar />
+//       <Outlet />
+//     </div>
+//   )
+// });

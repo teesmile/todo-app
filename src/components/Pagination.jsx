@@ -4,7 +4,7 @@ import { Link } from '@tanstack/react-router';
 const Pagination = ({ currentPage, totalPages, basePath = '/' }) => {
   const getPageNumbers = () => {
     const pages = [];
-    const maxVisible = 5;
+    const maxVisible = 2;
     let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
     let end = Math.min(totalPages, start + maxVisible - 1);
 
@@ -19,7 +19,7 @@ const Pagination = ({ currentPage, totalPages, basePath = '/' }) => {
   };
 
   return (
-    <div className="flex items-center justify-center space-x-2 my-8">
+    <div className="flex items-center justify-center space-x-2 my-6 px-3">
       <Link
         to={basePath}
         search={(prev) => ({ ...prev, page: Number(currentPage) - 1 })}

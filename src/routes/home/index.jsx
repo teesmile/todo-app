@@ -28,31 +28,37 @@ function Home() {
   const limit = Number(searchParams.limit) || 10;
   const skip = (page - 1) * limit;
 
-  let apiUrl = "https://dummyjson.com/todos";
+  // Always fetch all todos and filter client-side
+  const apiUrl = "https://dummyjson.com/todos";
   const apiParams = {
-    limit: limit,
-    skip: skip,
-    q: searchParams.search,
+    limit: 150, // Fetch all todos (dummyjson max is 150)
   };
-
-  if (searchParams.filter === "completed") {
-    apiUrl = "https://dummyjson.com/todos/completed";
-  } else if (searchParams.filter === "active") {
-    apiUrl = "https://dummyjson.com/todos?completed=false";
-  }
 
   const { data, loading, error } = useFetch(apiUrl, apiParams);
 
   const filteredTodos = () => {
-    const todos = data?.todos || [];
-    return searchParams.search
-      ? todos.filter((todo) =>
-          todo.todo.toLowerCase().includes(searchParams.search.toLowerCase())
-        )
-      : todos;
+    let todos = data?.todos || [];
+    
+    // Apply filter
+    if (searchParams.filter === "completed") {
+      todos = todos.filter(todo => todo.completed);
+    } else if (searchParams.filter === "active") {
+      todos = todos.filter(todo => !todo.completed);
+    }
+    
+    // Apply search
+    if (searchParams.search) {
+      todos = todos.filter(todo =>
+        todo.todo.toLowerCase().includes(searchParams.search.toLowerCase())
+      );
+    }
+    
+    return todos;
   };
 
-  const totalItems = data?.total || filteredTodos().length;
+  // Apply pagination to the filtered results
+  const paginatedTodos = filteredTodos().slice(skip, skip + limit);
+  const totalItems = filteredTodos().length;
   const totalPages = Math.ceil(totalItems / limit);
 
   const handleSubmit = (e) => {
@@ -81,10 +87,9 @@ function Home() {
 
   return (
     <div className="p-4 max-w-xl mx-auto">
-      <h1 className=" px-3 text-2xl font-bold mb-4 text-blue-600">Todo List</h1>
+      <h1 className="px-3 text-2xl font-bold mb-4 text-blue-600">Todo List</h1>
 
-      {/* Simplified Form */}
-      <form onSubmit={handleSubmit} className="w-full p-6 space-y-4 px-3 ">
+      <form onSubmit={handleSubmit} className="w-full p-6 space-y-4 px-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             name="search"
@@ -115,19 +120,16 @@ function Home() {
       </form>
 
       <div className="space-y-3 mb-8">
-        {filteredTodos().length > 0 ? (
-          filteredTodos().map((todo) => (
-            <div key={todo.id} className="list-none">
+        {paginatedTodos.length > 0 ? (
+          paginatedTodos.map((todo) => (
+            <div key={todo.id} className="list-none flex items-center gap-3 rounded-lg hover:shadow-md transition-shadow">
               <Link
-              
                 to="/todos/$id"
                 params={{ id: todo.id }}
                 search={searchParams}
-                className="block hover:bg-gray-50 p-3 rounded"
+                className="flex-1 hover:bg-gray-50 rounded"
               >
-                <ul>
                 <TodoItem todo={todo} />
-                </ul>
               </Link>
             </div>
           ))

@@ -1,5 +1,8 @@
-import React from 'react';
-import { Link } from '@tanstack/react-router';
+'use client';
+
+import { Button } from "@/components/ui/button";
+import { Link } from "@tanstack/react-router";
+import { cn } from "@/lib/utils";
 
 const Pagination = ({ currentPage, totalPages, basePath = '/' }) => {
   const getPageNumbers = () => {

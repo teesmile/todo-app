@@ -1,0 +1,18 @@
+@layer base {
+  :root {
+    /* Light Theme */
+    --primary: 51, 51, 51;        /* #333 */
+    --accent: 255, 215, 0;        /* #FFD700 */
+    --light: 250, 250, 250;       /* #FAFAFA */
+    --muted: 229, 231, 235;       /* #E5E7EB */
+    --completed: 34, 197, 94;     /* #22c55e */
+  }
+
+  .dark {
+    /* Dark Theme (optional) */
+    --primary: 245, 245, 245;     /* Light text */
+    --accent: 255, 215, 0;        /* Same gold */
+    --light: 17, 24, 39;          /* Dark bg */
+    --muted: 55, 65, 81;          /* Dark muted */
+  }
+}

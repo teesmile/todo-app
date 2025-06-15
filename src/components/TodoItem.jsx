@@ -1,29 +1,43 @@
-import React from 'react';
+import React from "react";
+import { CheckCircle, Circle, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
-const TodoItem = ({ todo }) => {
+const TodoItem = ({ todo, onToggleComplete, onDelete }) => {
   return (
-    <li className={`p-3 border rounded mb-2 ${todo.completed ? 'bg-green-50' : ''}`}>
-  <div className="flex justify-between items-center">
-    <span className={todo.completed ? 'line-through text-gray-500' : ''}>
-      {todo.todo}
-    </span>
-
-    {todo.completed ? (
-      <span className="text-green-500 text-sm">✓ Completed</span>
-    ) : (
+    <div className="group flex items-center gap-3 py-3 px-4 hover:bg-muted/50 rounded-lg">
+      <span className={`flex-1 ${todo.completed ? 'line-through text-muted-200' : 'text-primary'}`}>
+        {todo.todo}
+      </span>
+      
       <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          readOnly
-          className="h-5 w-5 rounded border-blue-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-        />
-        <span className="text-gray-500 text-sm">◯ Pending</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+        
+        <span 
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleComplete();
+          }}
+          className="cursor-pointer"
+        >
+          {todo.completed ? (
+            <CheckCircle className="h-5 w-5 flex-shrink-0 stroke-green-500 stroke-2" />
+          ) : (
+            <Circle className="h-5 w-5 flex-shrink-0 " />
+          )}
+        </span>
       </div>
-    )}
-  </div>
-</li>
-
+    </div>
   );
 };
 

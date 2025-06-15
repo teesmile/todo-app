@@ -1,12 +1,58 @@
-# React + Vite
+# Todo List Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Project Description
+A feature-rich Todo List application built with React and TanStack Router that helps users organize their tasks efficiently. The app communicates with the DummyJSON API for todo operations.
 
-Currently, two official plugins are available:
+![App Screenshot](./public/appoverview.png) <!-- Replace with actual screenshot -->
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Key Features
+- **Task Management**
+  - Add new todos
+  - View all todos with pagination
+  - Mark todos as complete/incomplete
+  - View todo details
 
-## Expanding the ESLint configuration
+- **Search & Filter**
+  - Search todos by text content
+  - Filter by status (All/Active/Completed)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **Responsive Design**
+  - Works on mobile, tablet, and desktop
+  - Clean, intuitive interface
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+- Node.js (v16+)
+- pnpm (v10+) or npm
+
+### Setup
+```bash
+# Clone the repository
+git clone https://github.com/teesmile/todo-app.git
+cd todo-app
+
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm run dev
+
+## Available Scripts
+
+```bash
+# Start development server
+pnpm run dev
+
+# Create production build
+pnpm run build
+
+# Preview production build
+pnpm run preview
+
+# Run tests (if configured)
+pnpm run test
+
+# Run linter
+pnpm run lint
+

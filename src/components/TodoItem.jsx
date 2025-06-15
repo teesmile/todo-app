@@ -12,13 +12,8 @@ const TodoItem = ({ todo }) => {
       <span className="text-green-500 text-sm">✓ Completed</span>
     ) : (
       <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          readOnly
-          className="h-5 w-5 rounded border-blue-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-        />
-        <span className="text-gray-500 text-sm">◯ Pending</span>
+      
+        <span className="text-gray-400 text-sm">◯ Pending</span>
       </div>
     )}
   </div>

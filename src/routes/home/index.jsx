@@ -4,6 +4,7 @@ import z from "zod";
 import Pagination from "../../components/Pagination";
 import TodoItem from "../../components/TodoItem";
 import useFetch from "../../hooks/useFetch";
+import { Plus } from "lucide-react";
 
 const searchSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -154,7 +155,7 @@ function Home() {
       onClick={() => setIsModalOpen(true)}
       className="w-full sm:w-auto bg-blue-500 text-white px-4 py-3 rounded hover:bg-blue-600 flex items-center justify-center"
     >
-      <span className="text-xl">+</span>
+      <span className="text-xl"><Plus /></span>
     </button>
     
     <select
@@ -181,7 +182,7 @@ function Home() {
         {paginatedTodos.length > 0 ? (
           paginatedTodos.map((todo) => (
             <div key={todo.id} className="list-none flex items-center gap-3 rounded-lg hover:shadow-md transition-shadow">
-              <Link
+               <Link
                 to="/todos/$id"
                 params={{ id: todo.id }}
                 search={searchParams}

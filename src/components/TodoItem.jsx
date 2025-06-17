@@ -18,29 +18,36 @@ const TodoItem = ({ todo }) => {
           {todo.todo}
         </span>
 
-        <div
-          className="flex items-center gap-[1/2] pr-2 pointer-events-none"
+        <div className="flex items-center gap-2 pr-2 pointer-events-none"
           onClick={(e) => e.stopPropagation()}
         >
           {todo.completed ? (
-            <CircleCheck className="h-5 w-5 text-green-500 flex-shrink-0" />
+            <span> <CircleCheck className="h-5 w-5 text-green-500 flex-shrink-0" /></span>
           ) : (
-            <CircleDashed className="h-5 w-5 text-gray-400 flex-shrink-0" />
+            <span><CircleDashed className="h-5 w-5 text-gray-400 flex-shrink-0" /></span>
           )}
 
-          <div className="pointer-events-auto">
+          <div className="flex items-center gap-1 pointer-events-auto">
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 console.log("Delete todo");
               }}
-              className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+              className="!p-0 !m-0 text-gray-400 hover:text-red-500 transition-colors ml-1"
               aria-label="Delete todo "
             >
               <Trash2 className="p-0 h-5 w-5 flex-shrink-0" />
             </button>
-           
-           
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                console.log("Delete todo");
+              }}
+              className="!p-0 !m-0 text-gray-400 hover:text-red-500 transition-colors ml-1"
+              aria-label="Delete todo "
+            >
+              <SquarePen className="p-0 h-5 w-5 flex-shrink-0" />
+            </button>
           </div>
         </div>
       </div>

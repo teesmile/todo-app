@@ -170,7 +170,7 @@ function Home() {
     
     <button
       type="submit"
-      className="w-full sm:w-auto bg-blue-700 text-white px-4 py-3 rounded hover:bg-blue-800"
+      className="w-full sm:w-auto bg-blue-500 text-white px-4 py-3 rounded hover:bg-blue-800"
     >
       Apply
     </button>

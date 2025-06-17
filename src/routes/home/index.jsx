@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react"; // Added useEffect import
+import { useState, useEffect } from "react"; 
 import z from "zod";
 import Pagination from "../../components/Pagination";
 import TodoItem from "../../components/TodoItem";
@@ -24,7 +24,7 @@ function Home() {
   const [localFilter, setLocalFilter] = useState(searchParams.filter || "all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTodo, setNewTodo] = useState('');
-  const [todos, setTodos] = useState([]); // Added local todos state
+  const [todos, setTodos] = useState([]); // Add local todos state
 
   // Ensure numbers are properly parsed
   const page = Number(searchParams.page) || 1;

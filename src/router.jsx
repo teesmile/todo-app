@@ -1,4 +1,3 @@
-// src/router.jsx
 import { createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
 import Root from './routes/__root';
 import Home from './routes/home';
@@ -21,7 +20,7 @@ const todoDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
 });
 
-// Add NotFound route (must be the last route)
+
 const notFoundRoute = createRoute({
   path: '*',
   component: NotFound,
@@ -32,8 +31,9 @@ export const router = createRouter({
   routeTree: rootRoute.addChildren([
     homeRoute,
     todoDetailRoute,
-    notFoundRoute // Add this as the last route
+    notFoundRoute 
   ]),
-  notFoundMode: 'root', // This helps with 404 handling
+  notFoundMode: 'root', 
+  defaultNotFoundComponent: NotFound,
 });
 

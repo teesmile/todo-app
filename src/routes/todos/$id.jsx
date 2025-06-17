@@ -60,13 +60,6 @@ function TodoDetailContent({ data }) {
             readOnly
             className="border border-blue-400 text-blue-600 focus:ring-1 focus:ring-blue-500 cursor-pointer"
           />
-
-          <button
-            type="button"
-            className="h-8 w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-300 rounded-full focus:outline-none"
-          >
-            Delete
-          </button>
         </div>
       </div>
           <Link

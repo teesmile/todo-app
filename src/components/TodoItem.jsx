@@ -1,6 +1,8 @@
 import React from 'react';
 
+
 const TodoItem = ({ todo }) => {
+  if (!todo) return <div className="p-4 text-red-500">Todo data missing</div>;
   return (
     <li className={`p-3 border rounded mb-2 ${todo.completed ? 'bg-green-50' : ''}`}>
   <div className="flex justify-between items-center">

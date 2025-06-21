@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import ErrorBoundary from "../../components/ErrorBoundary";
-import useFetch from "../../hooks/useFetch";
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/todos/$id")({
   component: TodoDetail,
@@ -9,9 +9,53 @@ export const Route = createFileRoute("/todos/$id")({
 
 function TodoDetail() {
   const { id } = Route.useParams();
-  const { data, loading, error } = useFetch(
-    `https://dummyjson.com/todos/${id}`
-  );
+  const router = useRouter();
+  const [todo, setTodo] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTodo = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // First, check if it's a local todo
+        const todosData = localStorage.getItem('todos_app_data');
+        if (todosData) {
+          const todos = JSON.parse(todosData);
+          const localTodo = todos.find(t => t.id === id);
+          
+          if (localTodo) {
+            setTodo(localTodo);
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // If not found locally, try API
+        const response = await fetch(`https://dummyjson.com/todos/${id}`);
+        
+        // Handle 404 specifically
+        if (response.status === 404) {
+          throw new Error(`Todo with ID ${id} not found`);
+        }
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setTodo(data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTodo();
+  }, [id]);
 
   return (
     <ErrorBoundary>
@@ -19,16 +63,17 @@ function TodoDetail() {
         {loading ? (
           <LoadingSkeleton />
         ) : error ? (
-          <ErrorMessage error={error} />
-        ) : data ? (
-          <TodoDetailContent data={data} />
+          <ErrorMessage error={error} router={router} />
+        ) : todo ? (
+          <TodoDetailContent data={todo} />
         ) : (
-          <NotFound />
+          <NotFound router={router} />
         )}
       </div>
     </ErrorBoundary>
   );
 }
+
 function TodoDetailContent({ data }) {
   return (
     <div>
@@ -62,32 +107,29 @@ function TodoDetailContent({ data }) {
           />
         </div>
       </div>
-          <Link
-          to="/"
+      <Link
+        to="/"
         search={(prev) => ({ ...prev, page: 1 })}
         className="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline"
       >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-1"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Back to Todo List
-        </Link>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 mr-1"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Back to Todo List
+      </Link>
     </div>
   );
 }
 
-
-
-// Loading state
 function LoadingSkeleton() {
   return (
     <div className="p-4 space-y-2">
@@ -98,33 +140,19 @@ function LoadingSkeleton() {
   );
 }
 
-// Error state
-function ErrorMessage({ error }) {
+function ErrorMessage({ error, router }) {
   return (
     <div className="p-4 text-red-500">
-      Error: {error.message}
-        <Link
-         to="/"
-        search={(prev) => ({ ...prev, page: 1 })}
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline"
-      
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-1"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Back to Todo List
-        </Link>
+      <p className="mb-4">Error: {error.message}</p>
+      <button
+        onClick={() => router.history.back()}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Go Back
+      </button>
     </div>
   );
 }
+
 
 export default TodoDetail;

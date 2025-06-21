@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 
-const useFetch = (baseUrl, params = {}) => {
+const useFetch = (baseUrl, params = {}, shouldFetch = true) => {
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(shouldFetch);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+     if (!shouldFetch) {
+      setLoading(false);
+      return;
+    }
     const fetchData = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const queryParams = new URLSearchParams();
         
         // Safely handle number parameters
@@ -43,7 +49,7 @@ const useFetch = (baseUrl, params = {}) => {
     };
 
     fetchData();
-  }, [baseUrl, JSON.stringify(params)]);
+  }, [baseUrl, JSON.stringify(params), shouldFetch]);
 
   return { data, loading, error };
 };

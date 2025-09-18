@@ -12,3 +12,9 @@ dist
 *.tmp
 *.temp
 
+# Next.js
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts

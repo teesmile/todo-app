@@ -1,9 +1,9 @@
 # Todo List Application
 
 ## 📌 Project Description
-A feature-rich Todo List application built with React and TanStack Router that helps users organize their tasks efficiently. The app communicates with the DummyJSON API for todo operations.
+A feature-rich Todo List application built with **Next.js 15** and **TypeScript** that helps users organize their tasks efficiently. The app communicates with the DummyJSON API for todo operations and provides both local storage and API synchronization.
 
-![App Screenshot](./public/appoverview.png) 
+![App Screenshot](https://github.com/user-attachments/assets/dc32ceed-9cbc-472b-9da2-c06331ab6361)
 
 ## ✨ Key Features
 - **Task Management**
@@ -20,11 +20,17 @@ A feature-rich Todo List application built with React and TanStack Router that h
   - Works on mobile, tablet, and desktop
   - Clean, intuitive interface
 
+- **Modern Tech Stack**
+  - Next.js 15 with App Router
+  - TypeScript for type safety
+  - Server-side rendering and client components
+  - Tailwind CSS for styling
+
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Node.js (v16+)
-- pnpm (v10+) or npm
+- Node.js (v18+)
+- npm or yarn package manager
 
 ### Setup
 ```bash
@@ -33,129 +39,136 @@ git clone https://github.com/teesmile/todo-app.git
 cd todo-app
 
 # Install dependencies
-pnpm install
+npm install
 
 # Start development server
-pnpm run dev
+npm run dev
 ```
 
-## Available Scripts
+The application will be available at `http://localhost:3000`
+
+## 📜 Available Scripts
 
 ```bash
 # Start development server
-pnpm run dev
+npm run dev
 
 # Create production build
-pnpm run build
+npm run build
 
-# Preview production build
-pnpm run preview
-
-# Run tests (if configured)
-pnpm run test
+# Start production server
+npm start
 
 # Run linter
-pnpm run lint
+npm run lint
 
+# Type check
+npm run type-check
 ```
 
 ## 🧩 Technology Stack
 
 | Category        | Technologies                          |
 |-----------------|---------------------------------------|
-| Frontend        | React, TanStack Router                |
+| Frontend        | Next.js 15, React 19, TypeScript     |
+| Routing         | Next.js App Router                    |
 | Styling         | Tailwind CSS                          |
-| Build Tool      | Vite                                  |
+| Build Tool      | Next.js (Built-in)                   |
 | Mock API        | [DummyJSON](https://dummyjson.com/docs/todos#todos-all) |
+| Type Safety     | TypeScript, Zod for validation       |
 
 ### Architecture Decisions
-- Client-side filtering for better performance  
-- Local state management for immediate UI updates  
-- Responsive-first design approach  
-- Optimized pagination implementation  
+- **Next.js App Router**: Modern routing with file-based structure
+- **TypeScript**: Full type safety across the application  
+- **Client-side filtering**: Better performance with local state
+- **Server and Client Components**: Optimized rendering strategy
+- **Local state management**: Immediate UI updates with API sync
+- **Responsive-first design**: Mobile-optimized interface
+- **Suspense boundaries**: Better loading states and error handling
 
-# **Note:** DummyJSON doesn't persist changes - added todos only exist in local state.
+## 📁 Project Structure
+
+```
+todo-app/
+├── app/                    # Next.js App Router pages
+│   ├── globals.css        # Global styles
+│   ├── layout.tsx         # Root layout component
+│   ├── page.tsx           # Home page
+│   └── todos/[id]/        # Dynamic todo detail routes
+│       └── page.tsx       # Todo detail page
+├── components/            # Reusable UI components
+│   ├── ErrorBoundary.tsx  # Error boundary component
+│   ├── Navbar.tsx         # Navigation component
+│   ├── Pagination.tsx     # Pagination component
+│   └── TodoItem.tsx       # Individual todo item
+├── hooks/                 # Custom React hooks
+│   └── useFetch.ts        # Data fetching hook
+├── types/                 # TypeScript type definitions
+│   └── todo.ts            # Todo-related types
+├── next.config.js         # Next.js configuration
+├── tailwind.config.ts     # Tailwind CSS configuration
+└── tsconfig.json          # TypeScript configuration
+```
 
 ## 🖥️ Usage Guide
 
 ### 1. Browsing Todos
-![Todo List](./public/browsing.png) 
 - Todos are paginated (10 per page by default)
 - Use pagination controls at bottom to navigate
+- URLs maintain state with query parameters
 
 ### 2. Searching & Filtering
-![Filter UI](./public/searching.png) 
 - **Search:** Type in the search field to filter by text
 - **Status Filter:**
   - `All`: Show all todos
   - `Active`: Only incomplete todos
   - `Completed`: Only finished todos
+- Search params are preserved in the URL
 
-  ### 3. Adding a Todo
-![Add Todo](./public/addtodo.gif) 
+### 3. Adding a Todo
 
 1. Click the "+" button
 2. Enter your task in the modal
 3. Click "Add Todo"
+4. The todo is added optimistically and synced with API
 
 ### 4. Viewing Todo Details
-![Todo Detail](./public/details.gif) 
 
 1. Click any todo item
-2. View details on the dedicated page
+2. View details on the dedicated page (`/todos/[id]`)
 3. Toggle completion status with checkbox
-4. Click back button to return
+4. Use back button to return to the list
+
+**Note:** DummyJSON doesn't persist changes - added todos only exist in local state and will reset on page refresh.
 
 ## ⚠️ Known Limitations
-- No persistent data storage (DummyJSON limitation)
+
+- **API Persistence**: DummyJSON is a mock API - new todos don't persist between sessions
+- **Network Dependent**: Requires internet connection for initial data fetch
+- **Local Storage**: Todo state is stored locally for better UX
 - No user accounts or authentication
 - No offline capability
-- No Delete Action
-- No Edit Action
-- No Toggle completed/pending todo working (Just place holder for now)
-- No drag-and-drop reordering
+- Delete and Edit actions are placeholders (UI only)
 
-## 🚀 Future Updates
+## 🚀 Development Features
 
-### High Priority
-- [ ] **Data Persistence**
-  - Implement localStorage for offline access
-  - Add sync functionality when online
-  - Backup/Restore functionality
+- **Hot Reload**: Instant feedback during development
+- **TypeScript**: Compile-time error checking
+- **ESLint**: Code quality enforcement
+- **Tailwind CSS**: Utility-first styling approach
+- **App Router**: File-based routing with layouts
+- **Server Components**: Optimized rendering strategy
 
-- [ ] **Todo Management Features**
-  - Delete button with confirmation dialog
-  - Edit button with inline editing
-  - Drag-and-drop reordering
+## 🤝 Contributing
 
-### UI Improvements
-- [ ] **Add New Todo Enhancement**
-  - Priority levels (High/Medium/Low)
-  - Due date picker
-  - Tags/Categories system
-
-- [ ] **Visual Upgrades**
-  - Dark/light mode toggle
-  - Animated transitions
-  - Improved mobile experience
-
-### Core Functionality
-- [ ] **Bulk Operations**
-  - Select multiple todos
-  - Batch complete/delete
-  - Move between categories
-
-- [ ] **Advanced Features**
-  - Keyboard shortcuts
-  - Voice command support
-  - Recurring tasks
-
-  ## 🤝 Contributing
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting (`npm run lint` && `npm run type-check`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ## 📜 License
-Distributed under the MIT License. See `LICENSE` for more information.
+
+This project is licensed under the MIT License - see the LICENSE file for details.

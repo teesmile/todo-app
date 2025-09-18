@@ -1,20 +1,42 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import ErrorBoundary from "../../components/ErrorBoundary";
-import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+'use client';
 
-export const Route = createFileRoute("/todos/$id")({
-  component: TodoDetail,
-});
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import type { Todo } from '@/types/todo';
 
-function TodoDetail() {
-  const { id } = Route.useParams();
-  const router = useRouter();
-  const [todo, setTodo] = useState(null);
+interface TodoDetailProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function TodoDetail({ params }: TodoDetailProps) {
+  return (
+    <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+      <TodoDetailClient params={params} />
+    </Suspense>
+  );
+}
+
+function TodoDetailClient({ params }: TodoDetailProps) {
+  const [id, setId] = useState<string>('');
+  const searchParams = useSearchParams();
+  const [todo, setTodo] = useState<Todo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Resolve params in useEffect
+  useEffect(() => {
+    const resolveParams = async () => {
+      const resolvedParams = await params;
+      setId(resolvedParams.id);
+    };
+    resolveParams();
+  }, [params]);
 
   useEffect(() => {
+    if (!id) return;
+    
     const fetchTodo = async () => {
       try {
         setLoading(true);
@@ -23,8 +45,8 @@ function TodoDetail() {
         // First, check if it's a local todo
         const todosData = localStorage.getItem('todos_app_data');
         if (todosData) {
-          const todos = JSON.parse(todosData);
-          const localTodo = todos.find(t => t.id === id);
+          const todos: Todo[] = JSON.parse(todosData);
+          const localTodo = todos.find(t => t.id.toString() === id);
           
           if (localTodo) {
             setTodo(localTodo);
@@ -48,7 +70,7 @@ function TodoDetail() {
         const data = await response.json();
         setTodo(data);
       } catch (err) {
-        setError(err);
+        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
       } finally {
         setLoading(false);
       }
@@ -63,18 +85,18 @@ function TodoDetail() {
         {loading ? (
           <LoadingSkeleton />
         ) : error ? (
-          <ErrorMessage error={error} router={router} />
+          <ErrorMessage error={error} />
         ) : todo ? (
-          <TodoDetailContent data={todo} />
+          <TodoDetailContent data={todo} searchParams={searchParams} />
         ) : (
-          <NotFound router={router} />
+          <NotFound />
         )}
       </div>
     </ErrorBoundary>
   );
 }
 
-function TodoDetailContent({ data }) {
+function TodoDetailContent({ data, searchParams }: { data: Todo; searchParams: URLSearchParams }) {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4 text-blue-600">Todo Detail</h1>
@@ -108,8 +130,7 @@ function TodoDetailContent({ data }) {
         </div>
       </div>
       <Link
-        to="/"
-        search={(prev) => ({ ...prev, page: 1 })}
+        href={`/?${searchParams.toString()}`}
         className="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline"
       >
         <svg
@@ -140,12 +161,14 @@ function LoadingSkeleton() {
   );
 }
 
-function ErrorMessage({ error, router }) {
+function ErrorMessage({ error }: { error: Error }) {
+  const router = useRouter();
+  
   return (
     <div className="p-4 text-red-500">
       <p className="mb-4">Error: {error.message}</p>
       <button
-        onClick={() => router.history.back()}
+        onClick={() => router.back()}
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
         Go Back
@@ -154,5 +177,19 @@ function ErrorMessage({ error, router }) {
   );
 }
 
-
-export default TodoDetail;
+function NotFound() {
+  const router = useRouter();
+  
+  return (
+    <div className="p-4 text-center">
+      <h1 className="text-2xl font-bold text-gray-600 mb-4">Todo Not Found</h1>
+      <p className="mb-4">The todo you&apos;re looking for doesn&apos;t exist.</p>
+      <button
+        onClick={() => router.back()}
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
+        Go Back
+      </button>
+    </div>
+  );
+}

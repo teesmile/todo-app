@@ -1,6 +1,17 @@
-import { Link } from '@tanstack/react-router';
+import React from 'react';
+import type { SearchParams } from '@/types/todo';
 
-const Pagination = ({ currentPage, totalPages, searchParams, basePath = '/' }) => {
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  updateSearchParams: (_updates: Partial<SearchParams>) => void;
+}
+
+const Pagination: React.FC<PaginationProps> = ({ 
+  currentPage, 
+  totalPages, 
+  updateSearchParams: updateParams
+}) => {
   // Don't show pagination if there's only one page
   if (totalPages <= 1) return null;
 
@@ -21,71 +32,70 @@ const Pagination = ({ currentPage, totalPages, searchParams, basePath = '/' }) =
     return pages;
   };
 
+  const handlePageChange = (page: number) => {
+    updateParams({ page });
+  };
+
   return (
     <div className="flex items-center justify-center space-x-2 my-6 px-3">
-      <Link
-        to={basePath}
-        search={(prev) => ({ ...prev, page: Math.max(1, currentPage - 1) })}
+      <button
+        onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
         className={`px-3 sm:px-4 py-2 text-sm border rounded ${
           currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
         }`}
       >
         Previous
-      </Link>
+      </button>
 
       {/* Show first page and ellipsis if needed */}
       {currentPage > 3 && (
         <>
-          <Link
-            to={basePath}
-            search={(prev) => ({ ...prev, page: 1 })}
+          <button
+            onClick={() => handlePageChange(1)}
             className="px-4 py-2 border rounded hover:bg-gray-100"
           >
             1
-          </Link>
+          </button>
           {currentPage > 4 && <span className="px-2">...</span>}
         </>
       )}
 
       {/* Visible page numbers */}
       {getPageNumbers().map((page) => (
-        <Link
+        <button
           key={page}
-          to={basePath}
-          search={(prev) => ({ ...prev, page })}
+          onClick={() => handlePageChange(page)}
           className={`px-3 sm:px-4 py-2 text-sm border rounded ${
             page === currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'
           }`}
         >
           {page}
-        </Link>
+        </button>
       ))}
 
       {/* Show last page and ellipsis if needed */}
       {currentPage < totalPages - 2 && (
         <>
           {currentPage < totalPages - 3 && <span className="px-2">...</span>}
-          <Link
-            to={basePath}
-            search={(prev) => ({ ...prev, page: totalPages })}
+          <button
+            onClick={() => handlePageChange(totalPages)}
             className="px-4 py-2 border rounded hover:bg-gray-100"
           >
             {totalPages}
-          </Link>
+          </button>
         </>
       )}
 
-      <Link
-        to={basePath}
-        search={(prev) => ({ ...prev, page: Math.min(totalPages, currentPage + 1) })}
+      <button
+        onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
         className={`px-3 sm:px-6 py-2 text-sm border rounded ${
           currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'
         }`}
       >
         Next
-      </Link>
+      </button>
     </div>
   );
 };

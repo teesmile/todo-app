@@ -1,73 +1,87 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
-import z from "zod";
-import Pagination from "../../components/Pagination";
-import TodoItem from "../../components/TodoItem";
-import useFetch from "../../hooks/useFetch";
-import { Plus } from "lucide-react";
+'use client';
 
-const searchSchema = z.object({
+import { Suspense } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
+import { z } from 'zod';
+import Pagination from '@/components/Pagination';
+import TodoItem from '@/components/TodoItem';
+import useFetch from '@/hooks/useFetch';
+import type { Todo, SearchParams } from '@/types/todo';
+
+const SEARCH_SCHEMA = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(10),
-  search: z.string().default(""),
-  filter: z.enum(["all", "completed", "active"]).default("all"),
+  search: z.string().default(''),
+  filter: z.enum(['all', 'completed', 'active']).default('all'),
 });
 
-export const Route = createFileRoute("/")({
-  validateSearch: searchSchema,
-  component: Home,
-});
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+      <HomeContent />
+    </Suspense>
+  );
+}
 
-function Home() {
-  const searchParams = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const [localSearch, setLocalSearch] = useState(searchParams.search || "");
-  const [localFilter, setLocalFilter] = useState(searchParams.filter || "all");
+function HomeContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Parse current search params
+  const currentParams = {
+    page: Number(searchParams.get('page')) || 1,
+    limit: Number(searchParams.get('limit')) || 10,
+    search: searchParams.get('search') || '',
+    filter: (searchParams.get('filter') as 'all' | 'completed' | 'active') || 'all'
+  };
+
+  const [localSearch, setLocalSearch] = useState(currentParams.search);
+  const [localFilter, setLocalFilter] = useState(currentParams.filter);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTodo, setNewTodo] = useState("");
-  const [todos, setTodos] = useState([]);
+  const [newTodo, setNewTodo] = useState('');
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [isAdding, setIsAdding] = useState(false);
 
   // Local storage key
-  const LOCAL_STORAGE_KEY = "todos_app_data";
+  const LOCAL_STORAGE_KEY = 'todos_app_data';
 
   // localStorage helper functions
-  const getLocalTodos = useCallback(() => {
+  const getLocalTodos = useCallback((): Todo[] => {
     try {
       const localData = localStorage.getItem(LOCAL_STORAGE_KEY);
 
       // Handle all invalid cases
-      if (!localData || localData === "undefined" || localData === "null") {
+      if (!localData || localData === 'undefined' || localData === 'null') {
         return [];
       }
 
       const parsed = JSON.parse(localData);
       return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
-      console.error("Error reading from localStorage:", error);
+      console.error('Error reading from localStorage:', error);
       localStorage.removeItem(LOCAL_STORAGE_KEY);
       return [];
     }
   }, []);
 
-  const saveLocalTodos = useCallback((todos) => {
+  const saveLocalTodos = useCallback((todos: Todo[]) => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos));
     } catch (error) {
-      console.error("Error saving to localStorage:", error);
+      console.error('Error saving to localStorage:', error);
     }
   }, []);
 
   // Ensure numbers are properly parsed
-  const page = Number(searchParams.page) || 1;
-  const limit = Number(searchParams.limit) || 10;
+  const { page, limit } = currentParams;
   const skip = (page - 1) * limit;
 
   // Always fetch all todos and filter client-side
-  const apiUrl = "https://dummyjson.com/todos";
-  const apiParams = {
-    limit: 150,
-  };
+  const apiUrl = 'https://dummyjson.com/todos';
+  const apiParams = { limit: 150 };
 
   const { data, loading, error } = useFetch(apiUrl, apiParams);
 
@@ -84,20 +98,20 @@ function Home() {
     }
   }, [data, getLocalTodos, saveLocalTodos]);
 
-  const filteredTodos = () => {
-    let filtered = [...todos];
+  const filteredTodos = (): Todo[] => {
+    let filtered = todos;
 
-    // Apply filter
-    if (searchParams.filter === "completed") {
+    // Filter by completion status
+    if (currentParams.filter === 'completed') {
       filtered = filtered.filter((todo) => todo.completed);
-    } else if (searchParams.filter === "active") {
+    } else if (currentParams.filter === 'active') {
       filtered = filtered.filter((todo) => !todo.completed);
     }
 
-    // Apply search
-    if (searchParams.search) {
+    // Filter by search query
+    if (currentParams.search && currentParams.search.trim()) {
       filtered = filtered.filter((todo) =>
-        todo.todo.toLowerCase().includes(searchParams.search.toLowerCase())
+        todo.todo.toLowerCase().includes(currentParams.search.toLowerCase())
       );
     }
 
@@ -105,101 +119,112 @@ function Home() {
   };
 
   const generateUniqueId = () => {
-  return `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
+    return `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   const handleAddTodo = async () => {
-  setIsAdding(true); 
-  try {
-    // Create unique temporary ID
+    if (!newTodo.trim()) return;
+    
+    setIsAdding(true);
+    
+    // Create unique temporary ID outside try block
     const tempId = generateUniqueId();
-     
-
-    // Build new todo object
-    const newTodoItem = {
-      id: tempId,
-      todo: newTodo,
-      completed: false,
-      userId: 5,
-      isLocal: true,
-    };
-
-    // Optimistic update
-    const updatedTodos = [newTodoItem, ...todos];
-    console.log(updatedTodos[0]);
-    setTodos(updatedTodos);
-    saveLocalTodos(updatedTodos);
-
-    // Reset UI
-    setIsModalOpen(false);
-    setNewTodo("");
-
-    // Reset filters
-    setLocalSearch("");
-    setLocalFilter("all");
-    navigate({
-      search: {
-        ...searchParams,
-        search: "",
-        filter: "all",
-        page: 1,
-      },
-    });
-
-    // API call to sync
-    const response = await fetch("https://dummyjson.com/todos/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    
+    try {
+      // Build new todo object
+      const newTodoItem: Todo = {
+        id: tempId,
         todo: newTodo,
         completed: false,
         userId: 5,
-      }),
-    });
+        isLocal: true,
+      };
 
-    const apiTodo = await response.json();
+      // Optimistic update
+      const updatedTodos = [newTodoItem, ...todos];
+      setTodos(updatedTodos);
+      saveLocalTodos(updatedTodos);
 
-    // Replace temporary todo with API response
-    setTodos((prev) => {
-      // Remove temporary todo
-      const withoutTemp = prev.filter((todo) => todo.id !== tempId);
-      // Add API todo at the beginning
-      const updated = [{ ...apiTodo, isLocal: false }, ...withoutTemp];
-      saveLocalTodos(updated);
-      return updated;
-    });
+      // Reset UI
+      setIsModalOpen(false);
+      setNewTodo('');
 
-  } catch (error) {
-    console.error("Error adding todo:", error);
+      // Reset filters
+      setLocalSearch('');
+      setLocalFilter('all');
+      
+      // Navigate to reset search params
+      const params = new URLSearchParams();
+      params.set('page', '1');
+      router.push(`/?${params.toString()}`);
 
-    // Mark todo with error but keep it locally
-    setTodos((prev) => {
-      const updated = prev.map((todo) =>
-        todo.id === tempId ? { ...todo, syncError: true } : todo
-      );
-      saveLocalTodos(updated);
-      return updated;
-    });
-  } finally {
-    setIsAdding(false); 
-  }
-};
+      // API call to sync
+      const response = await fetch('https://dummyjson.com/todos/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          todo: newTodo,
+          completed: false,
+          userId: 5,
+        }),
+      });
+
+      const apiTodo = await response.json();
+
+      // Replace temporary todo with API response
+      setTodos((prev) => {
+        // Remove temporary todo
+        const withoutTemp = prev.filter((todo) => todo.id !== tempId);
+        // Add API todo at the beginning
+        const updated = [{ ...apiTodo, isLocal: false }, ...withoutTemp];
+        saveLocalTodos(updated);
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error adding todo:', error);
+
+      // Mark todo with error but keep it locally
+      setTodos((prev) => {
+        const updated = prev.map((todo) =>
+          todo.id === tempId ? { ...todo, syncError: true } : todo
+        );
+        saveLocalTodos(updated);
+        return updated;
+      });
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   // Apply pagination to the filtered results
   const paginatedTodos = filteredTodos().slice(skip, skip + limit);
   const totalItems = filteredTodos().length;
   const totalPages = Math.ceil(totalItems / limit);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate({
-      search: {
-        ...searchParams,
-        search: localSearch,
-        filter: localFilter,
-        page: 1,
-      },
+    
+    // Build new search params
+    const params = new URLSearchParams();
+    if (localSearch) params.set('search', localSearch);
+    if (localFilter !== 'all') params.set('filter', localFilter);
+    params.set('page', '1');
+    
+    router.push(`/?${params.toString()}`);
+  };
+
+  const updateSearchParams = (updates: Partial<SearchParams>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        params.set(key, value.toString());
+      } else {
+        params.delete(key);
+      }
     });
+    
+    router.push(`/?${params.toString()}`);
   };
 
   if (loading)
@@ -241,7 +266,7 @@ function Home() {
           <select
             name="filter"
             value={localFilter}
-            onChange={(e) => setLocalFilter(e.target.value)}
+            onChange={(e) => setLocalFilter(e.target.value as 'all' | 'completed' | 'active')}
             className="w-full sm:w-auto bg-blue-500 text-white px-4 py-3 rounded-md hover:bg-blue-700"
           >
             <option value="all">All</option>
@@ -266,9 +291,7 @@ function Home() {
               className="list-none flex items-center gap-3 rounded-lg hover:shadow-md transition-shadow"
             >
               <Link
-                to="/todos/$id"
-                params={{ id: todo.id }}
-                search={searchParams}
+                href={`/todos/${todo.id}?${searchParams.toString()}`}
                 className="flex-1 hover:bg-gray-50 rounded"
               >
                 <TodoItem todo={todo} />
@@ -286,9 +309,10 @@ function Home() {
         <Pagination
           currentPage={page}
           totalPages={totalPages}
-          searchParams={searchParams}
+          updateSearchParams={updateSearchParams}
         />
       )}
+      
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg overflow-auto">
@@ -302,9 +326,15 @@ function Home() {
             />
             <div className="flex justify-end gap-2">
               <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
                 onClick={handleAddTodo}
                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-                disabled={!newTodo.trim() || isAdding} // Disable when loading
+                disabled={!newTodo.trim() || isAdding}
               >
                 {isAdding ? (
                   <span className="flex items-center">
@@ -331,7 +361,7 @@ function Home() {
                     Adding...
                   </span>
                 ) : (
-                  "Add Todo"
+                  'Add Todo'
                 )}
               </button>
             </div>
@@ -341,5 +371,3 @@ function Home() {
     </div>
   );
 }
-
-export default Home;

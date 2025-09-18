@@ -1,8 +1,14 @@
 import React from "react";
 import { CircleCheck, CircleDashed, Trash2, SquarePen } from "lucide-react";
+import type { Todo } from "@/types/todo";
 
-const TodoItem = ({ todo }) => {
+interface TodoItemProps {
+  todo: Todo;
+}
+
+const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
   if (!todo) return <div className="p-4 text-red-500">Todo data missing</div>;
+  
   return (
     <li
       className={`p-3 border rounded mb-2 ${
@@ -34,17 +40,17 @@ const TodoItem = ({ todo }) => {
                 console.log("Delete todo");
               }}
               className="!p-0 !m-0 text-gray-400 hover:text-red-500 transition-colors ml-1"
-              aria-label="Delete todo "
+              aria-label="Delete todo"
             >
               <Trash2 className="p-0 h-5 w-5 flex-shrink-0" />
             </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                console.log("Delete todo");
+                console.log("Edit todo");
               }}
-              className="!p-0 !m-0 text-gray-400 hover:text-red-500 transition-colors ml-1"
-              aria-label="Delete todo "
+              className="!p-0 !m-0 text-gray-400 hover:text-blue-500 transition-colors ml-1"
+              aria-label="Edit todo"
             >
               <SquarePen className="p-0 h-5 w-5 flex-shrink-0" />
             </button>
